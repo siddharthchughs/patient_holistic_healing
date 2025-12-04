@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "478868037546",
+    "project_id": "holistic-healing-app",
+    "storage_bucket": "holistic-healing-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:478868037546:android:a1031510661a21442355d3",
+        "android_client_info": {
+          "package_name": "com.example.holistic_healing_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDg4678qpJN7zIAaQORM78DMdihZUdYO_0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:478868037546:android:eba04fc9321028252355d3",
+        "android_client_info": {
+          "package_name": "com.example.patient_holistic_healing"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDg4678qpJN7zIAaQORM78DMdihZUdYO_0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:478868037546:android:a8a2ed0dbe7f72ab2355d3",
+        "android_client_info": {
+          "package_name": "com.medical.holistic_healing_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDg4678qpJN7zIAaQORM78DMdihZUdYO_0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
