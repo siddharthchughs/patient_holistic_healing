@@ -1,41 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:get_it/get_it.dart';
+import 'package:patient_holistic_healing/widget/screen/appointment/create_appointmernt_screen.dart';
+import 'package:patient_holistic_healing/widget/screen/appointment/schedules_screen.dart';
+import 'package:patient_holistic_healing/widget/screen/login/login_screen.dart';
+import 'package:patient_holistic_healing/widget/screen/settings/patient_preferences.dart';
+import 'package:patient_holistic_healing/widget/screen/signup/signup_screen.dart';
+import 'package:patient_holistic_healing/widget/screen/welcome/spash_screen.dart';
+import 'package:patient_holistic_healing/widget/services/firebase_services.dart';
 import 'firebase_options.dart';
 
-void main() async{
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-);
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  GetIt.instance.registerSingleton<FirebaseServices>(FirebaseServices());
+  runApp(PatientHealingHome());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class PatientHealingHome extends StatelessWidget {
+  const PatientHealingHome({super.key});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      debugShowCheckedModeBanner: false,
+      title: 'Holistic Healing',
+      initialRoute: 'welcome',
+      routes: {
+        'create_appointment': (context) => CreateAppointmentScreen(),
+        'setting': (context) => PatientPreferences(),
+        'register': (context) => SignUpScreen(),
+        'login': (context) => LoginScreen(),
+        'home': (context) => SchedulesScreen(),
+        'welcome': (context) => SplashScreen(),
+      },
     );
   }
 }
