@@ -1,7 +1,5 @@
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -23,22 +21,18 @@ class _SignUpState extends State<SignUpScreen> {
   var passwordState = '';
   var phoneNumberState = '';
   bool isValid = true;
-  bool isloggedIn = true;
   var isLoading = false;
-  String? confirmpasswordState = '';
-  File? _selectedImage;
   final FirebaseFirestore _firebaseStore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
   final _signUpFormKey = GlobalKey<FormState>();
+  late FocusNode _focusNode;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    _focusNode = FocusNode();
   }
-
-  void registerPatient() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -49,10 +43,10 @@ class _SignUpState extends State<SignUpScreen> {
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       appBar: AppBar(
-        actions: const [],
+        centerTitle: true,
         title: const Text(
           'Sign Up',
-          style: TextStyle(color: Colors.blueAccent, fontSize: 25),
+          style: TextStyle(color: Colors.blueAccent, fontSize: 22),
         ),
 
         backgroundColor: Colors.white,
@@ -90,43 +84,42 @@ class _SignUpState extends State<SignUpScreen> {
           SizedBox(height: 28),
           signUpPhoneNoInputField(),
           SizedBox(height: 28),
-          if (isLoading) const CircularProgressIndicator(),
-          signUpButton(),
+          if (isLoading) const CircularProgressIndicator() else signUpButton(),
         ],
       ),
     );
   }
 
-  Widget addUserImage() {
-    var imageReceiver = _selectedImage != null
-        ? FileImage(_selectedImage!)
-        : NetworkImage('https://i.pravatar.cc/150?img=3');
-    return GestureDetector(
-      onTap: () {
-        FilePicker.platform
-            .pickFiles(type: FileType.image)
-            .then(
-              (imageValue) => {
-                setState(() {
-                  _selectedImage = File(imageValue!.files.first.path!);
-                }),
-                print(' Image path $_selectedImage'),
-              },
-            );
-      },
-      child: Container(
-        width: _device_Width! * 0.60,
-        height: _device_height! * 0.30,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          image: DecorationImage(
-            fit: BoxFit.cover,
-            image: imageReceiver as ImageProvider,
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget addUserImage() {
+  //   var imageReceiver = _selectedImage != null
+  //       ? FileImage(_selectedImage!)
+  //       : NetworkImage('https://i.pravatar.cc/150?img=3');
+  //   return GestureDetector(
+  //     onTap: () {
+  //       FilePicker.platform
+  //           .pickFiles(type: FileType.image)
+  //           .then(
+  //             (imageValue) => {
+  //               setState(() {
+  //                 _selectedImage = File(imageValue!.files.first.path!);
+  //               }),
+  //               print(' Image path $_selectedImage'),
+  //             },
+  //           );
+  //     },
+  //     child: Container(
+  //       width: _device_Width! * 0.60,
+  //       height: _device_height! * 0.30,
+  //       decoration: BoxDecoration(
+  //         borderRadius: BorderRadius.circular(20),
+  //         image: DecorationImage(
+  //           fit: BoxFit.cover,
+  //           image: imageReceiver as ImageProvider,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget signUpUsernameInputField() {
     return TextFormField(
@@ -153,6 +146,7 @@ class _SignUpState extends State<SignUpScreen> {
 
   Widget signUpEmailInputField() {
     return TextFormField(
+      onTap: () => _focusNode,
       decoration: InputDecoration(
         hintText: 'Email',
         hintStyle: TextStyle(fontSize: 16),
@@ -160,14 +154,9 @@ class _SignUpState extends State<SignUpScreen> {
       textInputAction: TextInputAction.next,
       keyboardType: TextInputType.emailAddress,
       validator: (updateEmailValue) {
-        // 1. check if the  _updateEmailValue is null || empty
-
         if (updateEmailValue == null || updateEmailValue.isEmpty) {
           return 'Please enter your email address';
         }
-
-        //3. followed to this _updateEmailValue has to match the RegExpression
-
         final emailValidFormat = RegExp(
           ''
           r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
@@ -175,12 +164,8 @@ class _SignUpState extends State<SignUpScreen> {
         if (!emailValidFormat.hasMatch(updateEmailValue)) {
           return 'Please enter the email in valid format';
         }
-        //4. returns null if the _updatePasswordValue is valid.
-
         return null;
       },
-
-      // emailState is saved over here !
       onSaved: (saveEmail) {
         setState(() {
           emailAddressState = saveEmail!;
@@ -192,6 +177,7 @@ class _SignUpState extends State<SignUpScreen> {
 
   Widget signUpPasswordInputField() {
     return TextFormField(
+      focusNode: _focusNode,
       decoration: InputDecoration(
         hintText: 'Password',
         hintStyle: TextStyle(fontSize: 16),
@@ -200,39 +186,29 @@ class _SignUpState extends State<SignUpScreen> {
       keyboardType: TextInputType.visiblePassword,
       obscureText: true,
       validator: (updatePasswordValue) {
-        // 1. check if the  _updatePasswordValue is null || empty
-
         if (updatePasswordValue == null || updatePasswordValue.isEmpty) {
           return 'Please enter your password';
         }
-        // 2. followed to this _updatePasswordValue has length > 0
 
         if (updatePasswordValue.length < 0 || updatePasswordValue.length <= 6) {
           return 'Password must be greater than 6 characters';
         }
-
-        //3. followed to this _updatePasswordValue has to have one Uppercase
 
         final passwordValidAlphabetFormat = RegExp(r'[A-Z]');
         if (!updatePasswordValue.contains(passwordValidAlphabetFormat)) {
           return 'Must have atleast one Uppercase letter';
         }
 
-        //4. // followed to this _updatePasswordValue has to have one digit atleast
-
         final passwordValidNumberFormat = RegExp(r'[0-9]');
         if (!updatePasswordValue.contains(passwordValidNumberFormat)) {
           return 'Must have atleast one digit atleast';
         }
-        //5. returns null if the _updatePasswordValue is valid.
-
         return null;
       },
       onChanged: (value) {
         passwordState = value;
       },
 
-      // passwordState is saved over here !
       onSaved: (updatePasswordState) {
         setState(() {
           passwordState = updatePasswordState!;
@@ -243,23 +219,21 @@ class _SignUpState extends State<SignUpScreen> {
 
   Widget signUpPhoneNoInputField() {
     return TextFormField(
+      onTap: () => _focusNode,
+      autofocus: false,
       decoration: InputDecoration(
-        hintText: 'Phone No',
+        hintText: 'Phone Number',
         hintStyle: TextStyle(fontSize: 16),
       ),
+      keyboardType: TextInputType.text,
       textInputAction: TextInputAction.done,
-      keyboardType: TextInputType.number,
       maxLength: 10,
       maxLines: 1,
       validator: (updatePhoneNo) {
-        // 1. check if the  updatePhoneNo is null || empty
-
         if (updatePhoneNo == null || updatePhoneNo.isEmpty) {
           return 'Please enter your phone number';
         }
-        // 2. followed to this updatePhoneNo has length > 0
-
-        if (updatePhoneNo.length <= 15) {
+        if (updatePhoneNo.length < 0) {
           return 'Phone Number must have 10 digits';
         }
         return null;
@@ -268,7 +242,6 @@ class _SignUpState extends State<SignUpScreen> {
         phoneNumberState = value;
       },
 
-      // passwordState is saved over here !
       onSaved: (savedPhoneNumberState) {
         setState(() {
           phoneNumberState = savedPhoneNumberState!;
@@ -277,10 +250,10 @@ class _SignUpState extends State<SignUpScreen> {
     );
   }
 
-  void _registerUser() async {
+  void _registerPatient() async {
     final isValid = _signUpFormKey.currentState!.validate();
 
-    if (!isValid || !isloggedIn && _selectedImage == null) {
+    if (!isValid) {
       return;
     }
 
@@ -291,29 +264,19 @@ class _SignUpState extends State<SignUpScreen> {
         isLoading = true;
       });
       if (isLoading) {
-        if (isloggedIn) {
-          final userCredentials = await FirebaseAuth.instance
-              .createUserWithEmailAndPassword(
-                email: emailAddressState,
-                password: passwordState,
-              );
-
-          // final imageStorageRef = FirebaseStorage.instance
-          //     .ref()
-          //     .child('user_images')
-          //     .child('${userCredentials.user!.uid}.jpg');
-
-          // await imageStorageRef.putFile(_selectedImage!);
-          // final imageUrl = await imageStorageRef.getDownloadURL();
-          await FirebaseFirestore.instance
-              .collection('patient_users')
-              .doc(userCredentials.user!.uid)
-              .set({
-                'email': emailAddressState,
-                'name': usernameState,
-                //                'image_url': imageUrl,
-              });
-        }
+        final userCredentials = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+              email: emailAddressState,
+              password: passwordState,
+            );
+        await FirebaseFirestore.instance
+            .collection('patients')
+            .doc(userCredentials.user!.uid)
+            .set({
+              'email': emailAddressState,
+              'name': usernameState,
+              'phone': phoneNumberState,
+            });
       }
     } on FirebaseAuthException catch (errorException) {
       if (errorException.code == 'email alreayd in use') {}
@@ -334,7 +297,7 @@ class _SignUpState extends State<SignUpScreen> {
 
   Widget signUpButton() {
     return MaterialButton(
-      onPressed: _registerUser,
+      onPressed: _registerPatient,
       minWidth: _device_Width!,
       height: _device_height! * 0.06,
       clipBehavior: Clip.hardEdge,
@@ -350,5 +313,11 @@ class _SignUpState extends State<SignUpScreen> {
         style: TextStyle(fontSize: 22, fontWeight: FontWeight.w400),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 }

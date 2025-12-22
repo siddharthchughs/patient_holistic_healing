@@ -31,13 +31,13 @@ class _ScheduleState extends State<SchedulesScreen> {
         backgroundColor: const Color.fromARGB(209, 18, 97, 233),
         title: Text(
           'Appointments',
-          textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 22,
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
+        centerTitle: true,
         actions: [
           Padding(
             padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
@@ -48,6 +48,7 @@ class _ScheduleState extends State<SchedulesScreen> {
               child: const Icon(Icons.settings, color: Colors.white),
             ),
           ),
+
           SizedBox(width: 8.0),
         ],
       ),
@@ -77,6 +78,7 @@ class _ScheduleState extends State<SchedulesScreen> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: Text("Try again later !"));
         }
+
         if (snapshot.data!.docChanges.isEmpty) {
           return const Center(child: Text('No Appointments Yet Created'));
         }
@@ -86,9 +88,35 @@ class _ScheduleState extends State<SchedulesScreen> {
           return ListView.builder(
             itemCount: appointments.length,
             itemBuilder: (context, index) {
-              Map userAppointment = appointments[index];
-              ListTile(title: userAppointment['name']);
-              return null;
+              final userAppointment = appointments[index];
+              // final appointmentId =
+              //     (snapshot.data!.docs[index].id).toString();
+
+              return Card(
+                color: Colors.white,
+                margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.of(context).pushNamed(
+                      'appointment_detail',
+                      arguments: userAppointment,
+                    );
+                  },
+                  child: ListTile(
+                    title: Text(
+                      userAppointment['personal']['fullname'] ?? 'No Name',
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                ),
+              );
             },
           );
         } else {

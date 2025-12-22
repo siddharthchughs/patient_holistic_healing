@@ -151,10 +151,26 @@ class FirebaseServices {
 
   Stream<QuerySnapshot> getListOfAppointments() {
     return _firebaseStore
+        .collection('patient_info')
+        .doc(_auth.currentUser!.uid)
         .collection('appointments')
-        .orderBy('timestamp', descending: true)
         .snapshots();
   }
+  // Stream<QuerySnapshot> getListOfAppointments() {
+  //   return _firebaseStore
+  //       .collection('patient_info')
+  //       .doc(_auth.currentUser!.uid)
+  //       .get()
+  //       .asStream()
+  //       .asyncExpand((documentSnapshot) {
+  //     if (documentSnapshot.exists) {
+  //       return _firebaseStore
+  //           .collection('appointments')
+  //           .doc(documentSnapshot.id)
+  //           .snapshots();
+  //     } else {
+  //       return Stream.empty();
+  // }
 
   Future<int?> getcountFeedsById() async {
     final aggregateQuery = await _firebaseStore

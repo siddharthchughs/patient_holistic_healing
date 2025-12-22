@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 final firebase = FirebaseAuth.instance;
@@ -11,12 +14,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginState extends State<LoginScreen> {
-  double? _deviceWidth;
-  double? _deviceHeight;
+  double? _deviceWidth, _deviceHeight;
   var usernameState = '';
   var passwordState = '';
   final _loginFormKey = GlobalKey<FormState>();
   String loggedInUser = "";
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -25,25 +28,49 @@ class _LoginState extends State<LoginScreen> {
 
   void loginUser() async {
     final isValid = _loginFormKey.currentState!.validate();
-    print(isValid);
     if (!isValid) {
       return;
     }
-
     _loginFormKey.currentState!.save();
-    print(usernameState);
-    print(passwordState);
+    setState(() {
+      isLoading = true;
+    });
+
     try {
-      final response = await firebase.signInWithEmailAndPassword(
+      final userValid = await firebase.signInWithEmailAndPassword(
         email: usernameState,
         password: passwordState,
       );
-      print(response);
-      Navigator.popAndPushNamed(context, 'home');
+
+      if (userValid.user != null && mounted) {
+        Navigator.of(context).pushReplacementNamed('home');
+      }
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email_already_exists') {}
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(error.message ?? 'Authentication Falied')),
+      );
+    } finally {
+      Future.delayed(const Duration(seconds: 5), () {
+        if (mounted) {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      });
+    }
+  }
+
+  Widget customProgressBar() {
+    if (Platform.isIOS) {
+      return const Center(
+        child: CupertinoActivityIndicator(radius: 15, color: Colors.blueAccent),
+      );
+    } else {
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+        ),
       );
     }
   }
@@ -116,7 +143,7 @@ class _LoginState extends State<LoginScreen> {
                 SizedBox(height: 28),
                 userPasswordInputField(),
                 SizedBox(height: 40),
-                loginButton(),
+                if (isLoading) customProgressBar() else loginButton(),
                 SizedBox(height: 32),
                 navigateToSignUp(),
               ],

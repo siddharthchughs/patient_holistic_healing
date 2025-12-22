@@ -12,10 +12,20 @@ class PatientPreferences extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(209, 18, 97, 233),
+        centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Colors
+              .white, // Changes the back button, menu icon, and all other icons' color
+        ),
+        automaticallyImplyLeading: true,
+        backgroundColor: Colors.blueAccent.shade700,
         title: Text(
           'Setting',
-          style: TextStyle(fontSize: 22, color: Colors.white),
+          style: TextStyle(
+            fontSize: 22,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: Column(
@@ -27,7 +37,13 @@ class PatientPreferences extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(24.0, 4, 4, 0),
             child: GestureDetector(
               onTap: () => _showDialog(context),
-              child: ListTile(title: Text('Version'), subtitle: Text('1.0')),
+              child: ListTile(
+                title: Text(
+                  'Version',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text('1.0'),
+              ),
             ),
           ),
           Divider(color: Colors.blueAccent.shade100),
@@ -38,6 +54,7 @@ class PatientPreferences extends StatelessWidget {
               child: ListTile(
                 title: Text(
                   'Logout',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   selectionColor: Color.fromARGB(209, 18, 97, 233),
                 ),
               ),
@@ -67,6 +84,15 @@ class PatientPreferences extends StatelessWidget {
               },
               child: const Text(
                 "Okay",
+                style: TextStyle(fontSize: 14, color: Colors.blueAccent),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "Cancel",
                 style: TextStyle(fontSize: 14, color: Colors.blueAccent),
               ),
             ),
