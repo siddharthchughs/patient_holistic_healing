@@ -25,14 +25,12 @@ class FirebaseServices {
     try {
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: username, password: password);
-      print('Logged value ::${loggedInUser!['name']}');
       if (userCredential.user != null) {
         return true;
       } else {
         return false;
       }
     } catch (error) {
-      print(error);
       return false;
     }
   }
@@ -149,6 +147,23 @@ class FirebaseServices {
     }
   }
 
+  Future<Map<String, dynamic>?> getPatientInfo(String id) async {
+    try {
+      final userInfoSnapshot = await FirebaseFirestore.instance
+          .collection('patients')
+          .doc(id)
+          .get();
+
+      if (userInfoSnapshot.exists) {
+        return userInfoSnapshot.data() as Map<String, dynamic>;
+      }
+    } catch (e) {
+      print('Error fetching the patient detail');
+    }
+
+    return null;
+  }
+
   Stream<QuerySnapshot> getListOfAppointments() {
     return _firebaseStore
         .collection('patient_info')
@@ -156,6 +171,32 @@ class FirebaseServices {
         .collection('appointments')
         .snapshots();
   }
+
+  Stream<QuerySnapshot> getAppointmentInfoByuserId() {
+    return _firebaseStore
+        .collection('patient_info')
+        .doc(_auth.currentUser!.uid)
+        .collection('appointments')
+        .snapshots();
+  }
+
+  // Stream<QuerySnapshot> getListOfTherapies() {
+  //   return _firebaseStore
+  //       .collection('patient_info')
+  //       .doc(_auth.currentUser!.uid)
+  //       .collection('appointments')
+  //       .doc()
+  //       .collection('patient_selected_therapies')
+  //       .snapshots();
+  // }
+
+  // Stream<QuerySnapshot> getAppointmentInfoByuserId() {
+  //   return _firebaseStore
+  //       .collection('patient_info')
+  //       .doc(_auth.currentUser!.uid)
+  //       .collection('appointments')
+  //       .snapshots();
+  // }
   // Stream<QuerySnapshot> getListOfAppointments() {
   //   return _firebaseStore
   //       .collection('patient_info')

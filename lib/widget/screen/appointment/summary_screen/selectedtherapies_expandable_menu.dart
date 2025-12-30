@@ -1,36 +1,32 @@
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_expanded_tile/flutter_expanded_tile.dart';
 
-class SelectedTherapiesMenu extends StatefulWidget {
-  const SelectedTherapiesMenu({super.key});
+// class SelectedTherapiesMenu extends StatefulWidget {
+//   const SelectedTherapiesMenu({super.key});
 
-  @override
-  State<SelectedTherapiesMenu> createState() => _SelectedTherapiesMenuState();
-}
+//   @override
+//   State<SelectedTherapiesMenu> createState() => _SelectedTherapiesMenuState();
+// }
 
-class _SelectedTherapiesMenuState extends State<SelectedTherapiesMenu> {
-  bool _customTileExpanded = false;
+// class _SelectedTherapiesMenuState extends State<SelectedTherapiesMenu> {
+//   final bool _customTileExpanded = false;
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        ExpansionTile(
-          title: const Text('Selected Therapies'),
-          trailing: Icon(
-            _customTileExpanded
-                ? Icons.arrow_drop_down_circle
-                : Icons.arrow_drop_down,
-          ),
-          children: const <Widget>[
-            ListTile(title: Text('This is tile number 2')),
-          ],
-          onExpansionChanged: (bool expanded) {
-            setState(() {
-              _customTileExpanded = expanded;
-            });
-          },
-        ),
-      ],
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return ExpandedTileList.builder(
+//       itemCount: 1,
+//       itemBuilder: (context, index, con) {
+//         return ExpandedTile(
+//           title: const Text('Selected Therapies'),
+//           trailing: Icon(
+//             _customTileExpanded
+//                 ? Icons.keyboard_arrow_up
+//                 : Icons.keyboard_arrow_down_rounded,
+//           ),
+//           controller: con,
+//           content: Column(children: [Text('data')]),
+//         );
+//       },
+//     );
+//   }
+// }

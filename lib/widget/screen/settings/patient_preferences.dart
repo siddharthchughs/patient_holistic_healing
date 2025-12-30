@@ -1,68 +1,85 @@
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:patient_holistic_healing/widget/services/firebase_services.dart';
 
-class PatientPreferences extends StatelessWidget {
-  const PatientPreferences({super.key});
+class PatientPreferencesScreen extends StatefulWidget {
+  const PatientPreferencesScreen({super.key});
+  @override
+  State<PatientPreferencesScreen> createState() => _PatientPreferencesState();
+}
+
+class _PatientPreferencesState extends State<PatientPreferencesScreen> {
+  FirebaseServices? firebaseStore;
+  late Future<Map<String, dynamic>?> _userFuture;
+  final String patientID = FirebaseAuth.instance.currentUser!.uid;
+
+  @override
+  void initState() {
+    super.initState();
+    //    firebaseStore = GetIt.instance.get<FirebaseServices>();
+    _userFuture = FirebaseServices().getPatientInfo(patientID);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        centerTitle: true,
         iconTheme: IconThemeData(
           color: Colors
               .white, // Changes the back button, menu icon, and all other icons' color
         ),
         automaticallyImplyLeading: true,
         backgroundColor: Colors.blueAccent.shade700,
+        centerTitle: true,
         title: Text(
           'Setting',
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 20,
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24.0, 4, 4, 0),
-            child: GestureDetector(
-              onTap: () => _showDialog(context),
-              child: ListTile(
-                title: Text(
-                  'Version',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text('1.0'),
-              ),
-            ),
-          ),
-          Divider(color: Colors.blueAccent.shade100),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24.0, 4, 4, 0),
-            child: GestureDetector(
-              onTap: () => _showDialog(context),
-              child: ListTile(
-                title: Text(
-                  'Logout',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  selectionColor: Color.fromARGB(209, 18, 97, 233),
-                ),
-              ),
-            ),
-          ),
-          Divider(color: Colors.blueAccent.shade100),
-        ],
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 0),
+        child: patientInfo(),
       ),
+    );
+  }
+
+  Widget patientInfo() {
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: _userFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError &&
+            FirebaseAuth.instance.currentUser!.uid.isEmpty) {
+          return const Center(child: Text("Error loading profile"));
+        }
+
+        final data = snapshot.data;
+        print(data);
+
+        return Column(
+          children: [
+            customLayoutSubListTile(title: 'Logged In', subTitle: ''),
+            Divider(color: Colors.blueAccent.shade100),
+            customLayoutSubListTile(title: 'Version', subTitle: '1.0'),
+            Divider(color: Colors.blueAccent.shade100),
+            customLayoutListTile(
+              title: 'Logout',
+              onTap: () => _showDialog(context),
+            ),
+          ],
+        );
+        return const Text('Loading...');
+      },
     );
   }
 
@@ -121,5 +138,32 @@ class PatientPreferences extends StatelessWidget {
         ),
       );
     }
+  }
+
+  Widget customLayoutSubListTile({
+    required String title,
+    required String subTitle,
+  }) {
+    return ListTile(
+      contentPadding: EdgeInsets.fromLTRB(8, 2, 0, 2),
+      dense: true,
+      visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+      tileColor: Colors.white,
+      title: Text(title, style: TextStyle(fontSize: 16)),
+      subtitle: Text(subTitle, style: TextStyle(fontSize: 14)),
+    );
+  }
+
+  Widget customLayoutListTile({
+    required String title,
+    required Function() onTap,
+  }) {
+    return ListTile(
+      onTap: () => onTap(),
+      contentPadding: EdgeInsets.fromLTRB(8, 2, 8, 2),
+      dense: true,
+      visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+      title: Text(title, style: TextStyle(fontSize: 16)),
+    );
   }
 }

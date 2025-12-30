@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -22,6 +21,7 @@ class _SignUpState extends State<SignUpScreen> {
   var phoneNumberState = '';
   bool isValid = true;
   var isLoading = false;
+  bool isTextObsecure = true;
   final FirebaseFirestore _firebaseStore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
@@ -39,27 +39,33 @@ class _SignUpState extends State<SignUpScreen> {
     _device_Width = MediaQuery.of(context).size.width;
     _device_height = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'Sign Up',
-          style: TextStyle(color: Colors.blueAccent, fontSize: 22),
-        ),
-
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: Colors.white,
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: _device_Width! * 0.05),
-          margin: EdgeInsets.only(left: 16, right: 16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [signUpForm()],
+        appBar: AppBar(
+          iconTheme: IconThemeData(color: Colors.blueAccent.shade400),
+          centerTitle: true,
+          title: const Text(
+            'Sign Up',
+            style: TextStyle(color: Colors.blueAccent, fontSize: 20),
+          ),
+
+          backgroundColor: Colors.white,
+        ),
+        body: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: _device_Width! * 0.05),
+            margin: EdgeInsets.only(left: 16, right: 16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [signUpForm()],
+            ),
           ),
         ),
       ),
@@ -177,10 +183,63 @@ class _SignUpState extends State<SignUpScreen> {
 
   Widget signUpPasswordInputField() {
     return TextFormField(
-      focusNode: _focusNode,
       decoration: InputDecoration(
         hintText: 'Password',
         hintStyle: TextStyle(fontSize: 16),
+        suffixIcon: IconButton(
+          onPressed: () {
+            setState(() {
+              isTextObsecure = !isTextObsecure;
+            });
+          },
+          icon: Icon(isTextObsecure ? Icons.visibility_off : Icons.visibility),
+        ),
+      ),
+      textInputAction: TextInputAction.next,
+      keyboardType: TextInputType.visiblePassword,
+      obscureText: isTextObsecure,
+      validator: (updatePasswordValue) {
+        if (updatePasswordValue == null || updatePasswordValue.isEmpty) {
+          return 'Please enter your password';
+        }
+
+        if (updatePasswordValue.length < 0 || updatePasswordValue.length <= 6) {
+          return 'Password must be greater than 6 characters';
+        }
+
+        final passwordValidAlphabetFormat = RegExp(r'[A-Z]');
+        if (!updatePasswordValue.contains(passwordValidAlphabetFormat)) {
+          return 'Must have atleast one Uppercase letter';
+        }
+
+        final passwordValidNumberFormat = RegExp(r'[0-9]');
+        if (!updatePasswordValue.contains(passwordValidNumberFormat)) {
+          return 'Must have atleast one digit atleast';
+        }
+        return null;
+      },
+      onChanged: (value) {
+        passwordState = value;
+      },
+
+      onSaved: (updatePasswordState) {
+        setState(() {
+          passwordState = updatePasswordState!;
+        });
+      },
+    );
+  }
+
+  Widget signUpReConfirmPasswordInputField() {
+    return TextFormField(
+      focusNode: _focusNode,
+      decoration: InputDecoration(
+        hintText: 'ReEnter New Password',
+        hintStyle: TextStyle(fontSize: 16),
+        suffixIcon: IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.visibility_off, color: Colors.blueAccent.shade400),
+        ),
       ),
       textInputAction: TextInputAction.next,
       keyboardType: TextInputType.visiblePassword,
@@ -299,19 +358,15 @@ class _SignUpState extends State<SignUpScreen> {
     return MaterialButton(
       onPressed: _registerPatient,
       minWidth: _device_Width!,
-      height: _device_height! * 0.06,
-      clipBehavior: Clip.hardEdge,
-      color: Colors.blueAccent.shade100,
+      height: 45,
+      color: Colors.blueAccent.shade400,
       textColor: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(30),
         side: BorderSide(color: Colors.white),
       ),
 
-      child: Text(
-        'Submit',
-        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w400),
-      ),
+      child: Text('SignUp', style: TextStyle(fontSize: 16)),
     );
   }
 

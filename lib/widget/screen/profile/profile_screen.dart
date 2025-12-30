@@ -1,7 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class SymptomDetailScreen extends StatelessWidget {
-  SymptomDetailScreen({super.key});
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileState();
+}
+
+class _ProfileState extends State<ProfileScreen> {
   double? _deviceWidth, _deviceHeight;
 
   @override
@@ -10,11 +17,10 @@ class SymptomDetailScreen extends StatelessWidget {
     _deviceHeight = MediaQuery.of(context).size.height;
 
     final Map argument = ModalRoute.of(context)?.settings.arguments as Map;
-    String symptomSuffering = argument['symptoms'];
+    String currentMedication = argument['current_medication'];
     String patientName = argument['patientName'];
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: AppBar(
         iconTheme: IconThemeData(
@@ -24,13 +30,14 @@ class SymptomDetailScreen extends StatelessWidget {
         automaticallyImplyLeading: true,
         backgroundColor: Colors.blueAccent.shade400,
         title: Text(
-          'Symptoms Summary',
+          'Profile',
           style: TextStyle(
             fontSize: 20,
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -47,7 +54,6 @@ class SymptomDetailScreen extends StatelessWidget {
               textHeading('Patient Name', Colors.blueAccent.shade200),
               Text(
                 patientName,
-                textAlign: TextAlign.justify,
                 softWrap: true,
                 style: TextStyle(
                   color: Colors.black,
@@ -56,9 +62,12 @@ class SymptomDetailScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
-              textHeading('Patient Symptoms', Colors.blueAccent.shade200),
+              textHeading(
+                'Patient Current Medication',
+                Colors.blueAccent.shade200,
+              ),
               Text(
-                symptomSuffering,
+                currentMedication,
                 textAlign: TextAlign.justify,
                 softWrap: true,
                 style: TextStyle(
@@ -77,7 +86,7 @@ class SymptomDetailScreen extends StatelessWidget {
   Widget textHeading(String label, Color color) {
     return Text(
       label,
-      style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.w400),
+      style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.w400),
     );
   }
 }

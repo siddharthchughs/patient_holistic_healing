@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:patient_holistic_healing/widget/screen/settings/local_prefrences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final firebase = FirebaseAuth.instance;
 
@@ -20,13 +22,11 @@ class _LoginState extends State<LoginScreen> {
   final _loginFormKey = GlobalKey<FormState>();
   String loggedInUser = "";
   bool isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  bool isTextObsecure = true;
 
   void loginUser() async {
+    final prefs = await SharedPreferences.getInstance();
+
     final isValid = _loginFormKey.currentState!.validate();
     if (!isValid) {
       return;
@@ -41,8 +41,10 @@ class _LoginState extends State<LoginScreen> {
         email: usernameState,
         password: passwordState,
       );
-
+      print(userValid.user);
+      print(userValid.user!.phoneNumber);
       if (userValid.user != null && mounted) {
+        saveData(userValid.user!.email, userValid.user!.phoneNumber);
         Navigator.of(context).pushReplacementNamed('home');
       }
     } on FirebaseAuthException catch (error) {
@@ -59,6 +61,12 @@ class _LoginState extends State<LoginScreen> {
         }
       });
     }
+  }
+
+  void toggleVisibility() {
+    setState(() {
+      isTextObsecure = !isTextObsecure;
+    });
   }
 
   Widget customProgressBar() {
@@ -92,11 +100,11 @@ class _LoginState extends State<LoginScreen> {
   //   return FirebaseFirestore.instance.collection('users').snapshots();
   // }
 
-  Future<String> getUserInfoMap({required String userId}) async {
-    String userInfoSnapshot = FirebaseAuth.instance.currentUser!.refreshToken
-        .toString();
-    return userInfoSnapshot;
-  }
+  // Future<String> getUserInfoMap({required String userId}) async {
+  //   String userInfoSnapshot = FirebaseAuth.instance.currentUser!.refreshToken
+  //       .toString();
+  //   return userInfoSnapshot;
+  // }
 
   @override
   void dispose() {
@@ -108,18 +116,24 @@ class _LoginState extends State<LoginScreen> {
     _deviceWidth = MediaQuery.of(context).size.width;
     _deviceHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        actions: const [],
-        title: const Text(
-          'Login',
-          style: TextStyle(color: Colors.blueAccent, fontSize: 22),
-        ),
-
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: Colors.white,
+        appBar: AppBar(
+          actions: const [],
+          title: const Text(
+            'Login',
+            style: TextStyle(color: Colors.blueAccent, fontSize: 22),
+          ),
+
+          backgroundColor: Colors.white,
+        ),
+        body: Container(alignment: Alignment.center, child: loginForm()),
       ),
-      body: Container(alignment: Alignment.center, child: loginForm()),
     );
   }
 
@@ -128,8 +142,8 @@ class _LoginState extends State<LoginScreen> {
 
     return Container(
       alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(horizontal: _deviceWidth! * 0.05),
-      height: _deviceHeight! * 0.50,
+      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+      height: _deviceHeight! * 0.70,
       child: Form(
         key: _loginFormKey,
         child: Column(
@@ -140,12 +154,20 @@ class _LoginState extends State<LoginScreen> {
             Column(
               children: [
                 userTextInputField(),
-                SizedBox(height: 28),
+                SizedBox(height: 30),
                 userPasswordInputField(),
-                SizedBox(height: 40),
+                SizedBox(height: 30),
                 if (isLoading) customProgressBar() else loginButton(),
                 SizedBox(height: 32),
                 navigateToSignUp(),
+                SizedBox(height: 28),
+                Container(
+                  width: _deviceWidth!,
+                  alignment: Alignment.topLeft,
+                  margin: EdgeInsets.symmetric(horizontal: 4),
+                  padding: EdgeInsets.symmetric(vertical: 4),
+                  child: navigateToForgotPassword(),
+                ),
               ],
             ),
           ],
@@ -161,7 +183,7 @@ class _LoginState extends State<LoginScreen> {
         hintStyle: TextStyle(fontSize: 16),
       ),
       textInputAction: TextInputAction.next,
-      keyboardType: TextInputType.name,
+      keyboardType: TextInputType.text,
       validator: (newUpdatedValue) {
         // 1. check if the  _newUpdatedValue is null || empty
 
@@ -177,9 +199,6 @@ class _LoginState extends State<LoginScreen> {
         if (emailValidFormat.hasMatch(newUpdatedValue)) {
           return 'Please enter the email in valid format';
         }
-
-        // 3. returns null if the _newUpdatedValue is valid.
-
         return null;
       },
       onSaved: (updateUserTextState) {
@@ -193,10 +212,23 @@ class _LoginState extends State<LoginScreen> {
       decoration: InputDecoration(
         hintText: 'Password',
         hintStyle: TextStyle(fontSize: 16),
+        suffixIcon: IconButton(
+          onPressed: () {
+            setState(() {
+              isTextObsecure = !isTextObsecure;
+              print(isTextObsecure);
+            });
+          },
+          icon: Icon(
+            isTextObsecure ? Icons.visibility_off : Icons.visibility,
+            color: Colors.blueAccent.shade400,
+          ),
+        ),
       ),
+      obscureText: isTextObsecure,
       textInputAction: TextInputAction.done,
       keyboardType: TextInputType.visiblePassword,
-      obscureText: true,
+
       validator: (updatePasswordValue) {
         // 1. check if the  _updatePasswordValue is null || empty
 
@@ -232,52 +264,68 @@ class _LoginState extends State<LoginScreen> {
         passwordState = updatePasswordTextState!;
       },
     );
+    // return TextFormField(
+    //   // 2. Set obscureText to your variable
+    //   obscureText: isTextObsecure,
+    //   decoration: InputDecoration(
+    //     labelText: 'Password',
+    //     hintText: 'Enter your password',
+    //     suffixIcon: IconButton(
+    //       onPressed: toggleVisibility,
+    //       icon: Icon(
+    //         // 5. Change the icon based on the state
+    //         isTextObsecure ? Icons.visibility_off : Icons.visibility,
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 
   Widget loginButton() {
     return MaterialButton(
       onPressed: loginUser,
       minWidth: _deviceWidth!,
-      height: _deviceHeight! * 0.06,
+      height: 45,
       clipBehavior: Clip.hardEdge,
-      color: Colors.blueAccent.shade100,
-      textColor: Colors.white,
+      color: Colors.white,
+      textColor: Colors.blueAccent.shade400,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: Colors.white),
+        borderRadius: BorderRadius.circular(30),
+        side: BorderSide(color: Colors.blueAccent.shade400),
       ),
-
       child: Text(
         'Submit',
-        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w400),
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
       ),
     );
   }
 
   Widget navigateToSignUp() {
-    return GestureDetector(
-      onTap: () {
+    return MaterialButton(
+      onPressed: () {
         Navigator.of(context).pushNamed('register');
       },
-      child: Container(
-        clipBehavior: Clip.hardEdge,
-        width: _deviceWidth!,
-        height: _deviceHeight! * 0.06,
-        padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.blueAccent.shade200, width: 2.0),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(
-          'SignUp',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.blueAccent.shade200,
-            fontSize: 22,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
+      minWidth: _deviceWidth!,
+      height: 45,
+      color: Colors.blueAccent.shade400,
+      textColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30),
+        side: BorderSide(color: Colors.white),
+      ),
+
+      child: Text('SignUp', style: TextStyle(fontSize: 16)),
+    );
+  }
+
+  Widget navigateToForgotPassword() {
+    return TextButton.icon(
+      onPressed: () {
+        Navigator.of(context).pushNamed('forgotpassword');
+      },
+      label: Text(
+        'Forgot Password',
+        style: TextStyle(color: Colors.blueAccent.shade400, fontSize: 16),
       ),
     );
   }

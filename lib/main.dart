@@ -1,10 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:patient_holistic_healing/widget/screen/appointment/create_appointmernt_screen.dart';
 import 'package:patient_holistic_healing/widget/screen/appointment/schedules_screen.dart';
+import 'package:patient_holistic_healing/widget/screen/appointment/summary_screen/current_medication_screen.dart';
 import 'package:patient_holistic_healing/widget/screen/appointment/summary_screen/patient_summary_screen.dart';
+import 'package:patient_holistic_healing/widget/screen/appointment/summary_screen/selected_therapies_screen.dart';
+import 'package:patient_holistic_healing/widget/screen/appointment/summary_screen/symptom_detail_screen.dart';
+import 'package:patient_holistic_healing/widget/screen/forgotpassword/forgot_passwrd_screen.dart';
 import 'package:patient_holistic_healing/widget/screen/login/login_screen.dart';
+import 'package:patient_holistic_healing/widget/screen/profile/profile_screen.dart';
 import 'package:patient_holistic_healing/widget/screen/settings/patient_preferences.dart';
 import 'package:patient_holistic_healing/widget/screen/signup/signup_screen.dart';
 import 'package:patient_holistic_healing/widget/screen/welcome/spash_screen.dart';
@@ -21,7 +26,6 @@ void main() async {
 class PatientHealingHome extends StatelessWidget {
   const PatientHealingHome({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -34,10 +38,15 @@ class PatientHealingHome extends StatelessWidget {
               : [],
         ),
         'appointment_detail': (context) => PatientDetailScreen(),
-        'setting': (context) => PatientPreferences(),
+        'symptoms': (context) => SymptomDetailScreen(),
+        'medication': (context) => CurrentMedicationScreen(),
+        'therapies': (context) => SelectedTherapiesScreen(),
+        'settings': (context) => PatientPreferencesScreen(),
         'register': (context) => SignUpScreen(),
         'login': (context) => LoginScreen(),
+        'forgotpassword': (context) => ForgotPasswordScreen(),
         'home': (context) => SchedulesScreen(),
+        'profile': (context) => ProfileScreen(),
         'welcome': (context) => SplashScreen(),
       },
     );

@@ -31,6 +31,8 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
   String _patientAlcholoConsumption = '';
   String _patientExerciseLevel = '';
   bool isAppointmentConfirmed = false;
+  final String _pateintAppointmentStatus = '';
+
   List<String> _currentSelectedTherapies = [];
   DateTime? _selectedAppointmentDate;
   bool _isLoading = false;
@@ -41,9 +43,7 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
 
   PatientFlueOptions _patientFluOption = PatientFlueOptions.Select;
   PatientFlueOptions _patientVacinated = PatientFlueOptions.Select;
-
-  // final bool isEnabled = false;
-  // FirebaseServices? _firebaseServices;
+  final _patientAppointmentStatus = 'Pending';
 
   @override
   void initState() {
@@ -97,12 +97,12 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
               .white, // Changes the back button, menu icon, and all other icons' color
         ),
         automaticallyImplyLeading: true,
-        backgroundColor: Colors.blueAccent.shade700,
+        backgroundColor: Colors.blueAccent.shade400,
         title: Text(
           'Schedule Appointment',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: FontWeight.w900,
           ),
         ),
@@ -126,7 +126,7 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
                         _patientPersonalInfoForm(),
                         _patientHealthForm(),
                         _patientLifeStyleForm(),
-                        submitButton(),
+                        _submitButton(),
                       ],
                     ),
                   ],
@@ -147,7 +147,6 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
         valueColor: AlwaysStoppedAnimation<Color>(Colors.blueAccent.shade400),
       );
     }
-    //    CupertinoActivityIndicator(radius: 15, color: Colors.blueAccent.shade400);
   }
 
   Widget _patientPersonalInfoForm() {
@@ -171,7 +170,7 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
           SizedBox(height: 20),
           patientGenderSelect(),
           SizedBox(height: 16),
-          patientSelectDate(),
+          patientScheduleStatus(),
           SizedBox(height: 8),
         ],
       ),
@@ -230,7 +229,7 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
     return TextFormField(
       decoration: InputDecoration(
         hintText: 'Enter Your Full Name',
-        hintStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        hintStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
       ),
       keyboardType: TextInputType.name,
       textInputAction: TextInputAction.next,
@@ -252,60 +251,68 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
   }
 
   Widget relatedToPatientDropDownMenu() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Relation to Patient',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-        ),
-        DropdownButtonFormField(
-          decoration: InputDecoration(
-            focusedBorder: UnderlineInputBorder(
-              // Color when the field is tapped
-              borderSide: BorderSide(color: Colors.black, width: 1),
-            ),
+    return SizedBox(
+      width: _deviceWidth! * 0.60,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Relation to Patient',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
           ),
-          hint: Text('Select your realtion'),
-          dropdownColor: Colors.white,
-          items: relationLevel
-              .map(
-                (relationTypeSelected) => DropdownMenuItem(
-                  value: relationTypeSelected,
-                  child: Text(
-                    relationTypeSelected,
-                    style: TextStyle(fontSize: 14, color: Colors.black),
+          DropdownButtonFormField(
+            icon: Icon(
+              Icons.keyboard_arrow_down_sharp,
+              color: Colors.blueAccent.shade400,
+            ),
+            decoration: InputDecoration(
+              focusedBorder: UnderlineInputBorder(
+                // Color when the field is tapped
+                borderSide: BorderSide(color: Colors.black, width: 1),
+              ),
+            ),
+            hint: Text('Select your realtion'),
+            dropdownColor: Colors.white,
+            items: relationLevel
+                .map(
+                  (relationTypeSelected) => DropdownMenuItem(
+                    value: relationTypeSelected,
+                    child: Text(
+                      relationTypeSelected,
+                      style: TextStyle(fontSize: 14, color: Colors.black),
+                    ),
                   ),
-                ),
-              )
-              .toList(),
-          validator: (selectedRelationLevel) {
-            if (selectedRelationLevel == null) {
-              return 'Please Select Your Relation With Patient';
-            }
-            return null;
-          },
-          onSaved: (newValue) {
-            if (newValue == null) return;
-            setState(() {
-              _relatedToPatient = newValue;
-            });
-          },
-          onChanged: (value) {
-            _relatedToPatient = value!;
-          },
-        ),
-      ],
+                )
+                .toList(),
+            validator: (selectedRelationLevel) {
+              if (selectedRelationLevel == null) {
+                return 'Please Select Your Relation With Patient';
+              }
+              return null;
+            },
+            onSaved: (newValue) {
+              if (newValue == null) return;
+              setState(() {
+                _relatedToPatient = newValue;
+              });
+            },
+            onChanged: (value) {
+              _relatedToPatient = value!;
+            },
+          ),
+        ],
+      ),
     );
   }
 
   Widget patientNameInputField() {
     return TextFormField(
+      scrollPadding: EdgeInsets.only(bottom: 100),
       decoration: InputDecoration(
         hintText: 'Enter Your Full Name',
-        hintStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        hintStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
       ),
       keyboardType: TextInputType.name,
       textInputAction: TextInputAction.next,
@@ -330,20 +337,23 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
     return Text(
       label,
       style: TextStyle(
-        color: Colors.blueAccent.shade700,
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
+        color: Colors.blueAccent.shade200,
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
       ),
     );
   }
 
   Widget patientAgeInputField() {
     return TextFormField(
+      scrollPadding: EdgeInsets.only(bottom: 100),
       decoration: InputDecoration(
         hintText: 'Enter Your Age',
-        hintStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        hintStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
       ),
-      keyboardType: TextInputType.emailAddress,
+      keyboardType: TextInputType.text,
+      textInputAction: TextInputAction.done,
+      maxLength: 2,
       validator: (updateAgeText) {
         if (updateAgeText == null || updateAgeText.isEmpty) {
           return 'Please enter your age';
@@ -362,56 +372,62 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
   }
 
   Widget patientGenderSelect() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Gender',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-        ),
-        DropdownButtonFormField(
-          decoration: InputDecoration(
-            focusedBorder: UnderlineInputBorder(
-              // Color when the field is tapped
-              borderSide: BorderSide(color: Colors.black, width: 1),
-            ),
+    return SizedBox(
+      width: _deviceWidth! * 0.60,
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Gender',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
           ),
-          hint: Text('Select your gender'),
-          dropdownColor: Colors.white,
-          items: genderType
-              .map(
-                (genderTypeSelected) => DropdownMenuItem(
-                  value: genderTypeSelected,
-                  child: Text(
-                    genderTypeSelected,
-                    style: TextStyle(fontSize: 16, color: Colors.black),
+          DropdownButtonFormField(
+            icon: Icon(
+              Icons.keyboard_arrow_down_sharp,
+              color: Colors.blueAccent.shade400,
+            ),
+            decoration: InputDecoration(
+              focusedBorder: UnderlineInputBorder(
+                // Color when the field is tapped
+                borderSide: BorderSide(color: Colors.black, width: 1),
+              ),
+            ),
+            hint: Text('Select your gender'),
+            dropdownColor: Colors.white,
+            items: genderType
+                .map(
+                  (genderTypeSelected) => DropdownMenuItem(
+                    value: genderTypeSelected,
+                    child: Text(
+                      genderTypeSelected,
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
                   ),
-                ),
-              )
-              .toList(),
-          validator: (selectedGender) {
-            if (selectedGender == null) {
-              return 'Please Select Your Gender';
-            }
-            return null;
-          },
-          onSaved: (newValue) {
-            if (newValue == null) return;
-            setState(() {
-              _patientGenderSelect = newValue;
-            });
-          },
-          onChanged: (value) {
-            _patientGenderSelect = value!;
-          },
-        ),
-      ],
+                )
+                .toList(),
+            validator: (selectedGender) {
+              if (selectedGender == null) {
+                return 'Please Select Your Gender';
+              }
+              return null;
+            },
+            onSaved: (newValue) {
+              if (newValue == null) return;
+              setState(() {
+                _patientGenderSelect = newValue;
+              });
+            },
+            onChanged: (value) {
+              _patientGenderSelect = value!;
+            },
+          ),
+        ],
+      ),
     );
   }
 
-  Widget patientSelectDate() {
+  Widget patientScheduleStatus() {
     return Column(
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -419,7 +435,7 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
         SizedBox(height: 16),
         Text(
           'Select Date for Appointment',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
         ),
         SizedBox(height: 8),
         Row(
@@ -430,8 +446,11 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
                     ? 'No Date Selected'
                     : dateFormatter.format(_selectedAppointmentDate!),
                 textAlign: TextAlign.left,
-
-                style: TextStyle(color: Colors.black, fontSize: 16),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w300,
+                  color: Colors.black45,
+                ),
               ),
             ),
             Expanded(
@@ -449,206 +468,233 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
   }
 
   Widget _patientAreaOfConcernDropDownMenu() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Main Area of Concern',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-        ),
-        DropdownButtonFormField(
-          decoration: InputDecoration(
-            focusedBorder: UnderlineInputBorder(
-              // Color when the field is tapped
-              borderSide: BorderSide(color: Colors.black, width: 1),
-            ),
+    return SizedBox(
+      width: _deviceWidth! * 0.70,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Main Area of Concern',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
           ),
-          hint: Text('Select Your Concern'),
-          dropdownColor: Colors.white,
-          items: areaOfConcerns
-              .map(
-                (concernSelected) => DropdownMenuItem(
-                  value: concernSelected,
-                  child: Text(
-                    concernSelected,
-                    style: TextStyle(fontSize: 14, color: Colors.black),
+          DropdownButtonFormField(
+            icon: Icon(
+              Icons.keyboard_arrow_down_sharp,
+              color: Colors.blueAccent.shade400,
+            ),
+            decoration: InputDecoration(
+              focusedBorder: UnderlineInputBorder(
+                // Color when the field is tapped
+                borderSide: BorderSide(color: Colors.black, width: 1),
+              ),
+            ),
+            hint: Text('Select Your Concern'),
+            dropdownColor: Colors.white,
+            items: areaOfConcerns
+                .map(
+                  (concernSelected) => DropdownMenuItem(
+                    value: concernSelected,
+                    child: Text(
+                      concernSelected,
+                      style: TextStyle(fontSize: 14, color: Colors.black),
+                    ),
                   ),
-                ),
-              )
-              .toList(),
-          validator: (selectedPatientConcern) {
-            if (selectedPatientConcern == null) {
-              return 'Please Select Your Concern';
-            }
-            return null;
-          },
-          onSaved: (savePatientConcern) {
-            if (savePatientConcern == null) return;
-            setState(() {
-              _patientConcern = savePatientConcern;
-            });
-          },
-          onChanged: (value) {
-            _patientConcern = value!;
-          },
-        ),
-      ],
+                )
+                .toList(),
+            validator: (selectedPatientConcern) {
+              if (selectedPatientConcern == null) {
+                return 'Please Select Your Concern';
+              }
+              return null;
+            },
+            onSaved: (savePatientConcern) {
+              if (savePatientConcern == null) return;
+              setState(() {
+                _patientConcern = savePatientConcern;
+              });
+            },
+            onChanged: (value) {
+              _patientConcern = value!;
+            },
+          ),
+        ],
+      ),
     );
   }
 
   Widget patientDietTypeDropDownMenu() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Diet Type',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-        ),
-        SizedBox(height: 2),
-        DropdownButtonFormField(
-          decoration: InputDecoration(
-            focusedBorder: UnderlineInputBorder(
-              // Color when the field is tapped
-              borderSide: BorderSide(color: Colors.black, width: 1),
-            ),
+    return SizedBox(
+      width: _deviceWidth! * 0.70,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Diet Type',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
           ),
+          SizedBox(height: 2),
+          DropdownButtonFormField(
+            icon: Icon(
+              Icons.keyboard_arrow_down_sharp,
+              color: Colors.blueAccent.shade400,
+            ),
+            decoration: InputDecoration(
+              focusedBorder: UnderlineInputBorder(
+                // Color when the field is tapped
+                borderSide: BorderSide(color: Colors.black, width: 1),
+              ),
+            ),
 
-          hint: Text('Select Your Diet'),
-          dropdownColor: Colors.white,
-          items: dietType
-              .map(
-                (dietSelected) => DropdownMenuItem(
-                  value: dietSelected,
-                  child: Text(
-                    dietSelected,
-                    style: TextStyle(fontSize: 14, color: Colors.black),
+            hint: Text('Select Your Diet'),
+            dropdownColor: Colors.white,
+            items: dietType
+                .map(
+                  (dietSelected) => DropdownMenuItem(
+                    value: dietSelected,
+                    child: Text(
+                      dietSelected,
+                      style: TextStyle(fontSize: 14, color: Colors.black),
+                    ),
                   ),
-                ),
-              )
-              .toList(),
-          validator: (selectedPatientDietType) {
-            if (selectedPatientDietType == null) {
-              return 'Please Select Your Diet Type';
-            }
-            return null;
-          },
-          onSaved: (savePatientDietType) {
-            if (savePatientDietType == null) return;
-            setState(() {
-              _patientDietType = savePatientDietType;
-            });
-          },
-          onChanged: (value) {
-            _patientDietType = value!;
-          },
-        ),
-      ],
+                )
+                .toList(),
+            validator: (selectedPatientDietType) {
+              if (selectedPatientDietType == null) {
+                return 'Please Select Your Diet Type';
+              }
+              return null;
+            },
+            onSaved: (savePatientDietType) {
+              if (savePatientDietType == null) return;
+              setState(() {
+                _patientDietType = savePatientDietType;
+              });
+            },
+            onChanged: (value) {
+              _patientDietType = value!;
+            },
+          ),
+        ],
+      ),
     );
   }
 
   Widget patientAlcholoConsumptionDropDownMenu() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'AlcholoConsumption',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-        ),
-        SizedBox(height: 2),
-        DropdownButtonFormField(
-          decoration: InputDecoration(
-            focusedBorder: UnderlineInputBorder(
-              // Color when the field is tapped
-              borderSide: BorderSide(color: Colors.black, width: 1),
-            ),
+    return SizedBox(
+      width: _deviceWidth! * 0.80,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'AlcholoConsumption',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
           ),
-          hint: Text('Select Your Diet'),
-          dropdownColor: Colors.white,
-          items: consumptionTimePeriod
-              .map(
-                (consumptionSelected) => DropdownMenuItem(
-                  value: consumptionSelected,
-                  child: Text(
-                    consumptionSelected,
-                    style: TextStyle(fontSize: 14, color: Colors.black),
+          SizedBox(height: 2),
+          DropdownButtonFormField(
+            icon: Icon(
+              Icons.keyboard_arrow_down_sharp,
+              color: Colors.blueAccent.shade400,
+            ),
+            decoration: InputDecoration(
+              focusedBorder: UnderlineInputBorder(
+                // Color when the field is tapped
+                borderSide: BorderSide(color: Colors.black, width: 1),
+              ),
+            ),
+            hint: Text('Select Your Diet'),
+            dropdownColor: Colors.white,
+            items: consumptionTimePeriod
+                .map(
+                  (consumptionSelected) => DropdownMenuItem(
+                    value: consumptionSelected,
+                    child: Text(
+                      consumptionSelected,
+                      style: TextStyle(fontSize: 14, color: Colors.black),
+                    ),
                   ),
-                ),
-              )
-              .toList(),
-          validator: (selectedPatientDietType) {
-            if (selectedPatientDietType == null) {
-              return 'Please Select Your Alcohol Intake';
-            }
-            return null;
-          },
-          onSaved: (savePatientCconsumption) {
-            if (savePatientCconsumption == null) return;
-            setState(() {
-              _patientAlcholoConsumption = savePatientCconsumption;
-            });
-          },
-          onChanged: (value) {
-            _patientAlcholoConsumption = value!;
-          },
-        ),
-      ],
+                )
+                .toList(),
+            validator: (selectedPatientDietType) {
+              if (selectedPatientDietType == null) {
+                return 'Please Select Your Alcohol Intake';
+              }
+              return null;
+            },
+            onSaved: (savePatientCconsumption) {
+              if (savePatientCconsumption == null) return;
+              setState(() {
+                _patientAlcholoConsumption = savePatientCconsumption;
+              });
+            },
+            onChanged: (value) {
+              _patientAlcholoConsumption = value!;
+            },
+          ),
+        ],
+      ),
     );
   }
 
   Widget patientExerciseLevelDropDownMenu() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Exercise Level',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-        ),
-        SizedBox(height: 3.5),
-        DropdownButtonFormField(
-          decoration: InputDecoration(
-            focusedBorder: UnderlineInputBorder(
-              // Color when the field is tapped
-              borderSide: BorderSide(color: Colors.black, width: 1),
-            ),
+    return SizedBox(
+      width: _deviceWidth! * 0.80,
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Exercise Level',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
           ),
-          hint: Text('Select Your Exercise Level'),
-          dropdownColor: Colors.white,
-          items: exerciseLevel
-              .map(
-                (exerciseLevelUpdated) => DropdownMenuItem(
-                  value: exerciseLevelUpdated,
-                  child: Text(
-                    exerciseLevelUpdated,
-                    style: TextStyle(fontSize: 14, color: Colors.black),
+          SizedBox(height: 3.5),
+          DropdownButtonFormField(
+            icon: Icon(
+              Icons.keyboard_arrow_down_sharp,
+              color: Colors.blueAccent.shade400,
+            ),
+            decoration: InputDecoration(
+              focusedBorder: UnderlineInputBorder(
+                // Color when the field is tapped
+                borderSide: BorderSide(color: Colors.black, width: 1),
+              ),
+            ),
+            hint: Text('Select Level'),
+            dropdownColor: Colors.white,
+            items: exerciseLevel
+                .map(
+                  (exerciseLevelUpdated) => DropdownMenuItem(
+                    value: exerciseLevelUpdated,
+                    child: Text(
+                      exerciseLevelUpdated,
+                      style: TextStyle(fontSize: 14, color: Colors.black),
+                    ),
                   ),
-                ),
-              )
-              .toList(),
-          validator: (selectedPatientAlcoholIntake) {
-            if (selectedPatientAlcoholIntake == null) {
-              return 'Please Select Your Alcohol Intake';
-            }
-            return null;
-          },
-          onSaved: (savePatientExerciseLevel) {
-            if (savePatientExerciseLevel == null) return;
-            setState(() {
-              _patientExerciseLevel = savePatientExerciseLevel;
-            });
-          },
-          onChanged: (value) {
-            _patientExerciseLevel = value!;
-          },
-        ),
-      ],
+                )
+                .toList(),
+            validator: (selectedPatientAlcoholIntake) {
+              if (selectedPatientAlcoholIntake == null) {
+                return 'Please Select Your Alcohol Intake';
+              }
+              return null;
+            },
+            onSaved: (savePatientExerciseLevel) {
+              if (savePatientExerciseLevel == null) return;
+              setState(() {
+                _patientExerciseLevel = savePatientExerciseLevel;
+              });
+            },
+            onChanged: (value) {
+              _patientExerciseLevel = value!;
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -661,7 +707,7 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
       children: [
         Text(
           'Describe your symptoms',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
         ),
         SizedBox(height: 20),
         SizedBox(
@@ -671,7 +717,11 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
             decoration: InputDecoration(
               hintText:
                   'Please describe your main symptoms, when they occur, and any patterns you have noticed',
-              hintStyle: TextStyle(fontSize: 16),
+              hintStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w300,
+                color: Colors.black45,
+              ),
               border: OutlineInputBorder(),
             ),
             validator: (updateConcernText) {
@@ -713,7 +763,7 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
       children: [
         Text(
           'On going Medication or Suppliments ?',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
         ),
         SizedBox(height: 20),
         SizedBox(
@@ -723,7 +773,11 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
             decoration: InputDecoration(
               hintText:
                   'Kindly provide your medication or suppliments that you are taking currently',
-              hintStyle: TextStyle(fontSize: 16),
+              hintStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w300,
+                color: Colors.black45,
+              ),
               border: OutlineInputBorder(),
             ),
             validator: (updateConcernText) {
@@ -742,6 +796,7 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
             },
             textCapitalization: TextCapitalization.sentences,
             textAlign: TextAlign.left,
+            textInputAction: TextInputAction.done,
             keyboardType: TextInputType.multiline,
             maxLines: 20, // Allows unlimited lines to expand
             maxLength: 500,
@@ -752,53 +807,60 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
   }
 
   Widget _patientAntibioticsDropDownMenu() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        Text(
-          'When did you last take Anitbiotics ?',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-        ),
-        SizedBox(height: 3.5),
-        DropdownButtonFormField(
-          decoration: InputDecoration(
-            focusedBorder: UnderlineInputBorder(
-              // Color when the field is tapped
-              borderSide: BorderSide(color: Colors.black, width: 1),
-            ),
+    return SizedBox(
+      width: _deviceWidth! * 0.60,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Text(
+            'When did you last take Anitbiotics ?',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
           ),
-          hint: const Text('Select'),
-          dropdownColor: Colors.white,
-          items: antibioticsDuration
-              .map(
-                (durationType) => DropdownMenuItem(
-                  value: durationType,
-                  child: Text(
-                    durationType,
-                    style: TextStyle(fontSize: 14, color: Colors.black),
+          SizedBox(height: 3.0),
+          DropdownButtonFormField(
+            icon: Icon(
+              Icons.keyboard_arrow_down_sharp,
+              color: Colors.blueAccent.shade400,
+            ),
+            decoration: InputDecoration(
+              focusedBorder: UnderlineInputBorder(
+                // Color when the field is tapped
+                borderSide: BorderSide(color: Colors.black, width: 1),
+              ),
+            ),
+            hint: const Text('Select'),
+            dropdownColor: Colors.white,
+            items: antibioticsDuration
+                .map(
+                  (durationType) => DropdownMenuItem(
+                    value: durationType,
+                    child: Text(
+                      durationType,
+                      style: TextStyle(fontSize: 14, color: Colors.black),
+                    ),
                   ),
-                ),
-              )
-              .toList(),
-          validator: (selectedPatientAntibiotics) {
-            if (selectedPatientAntibiotics == null) {
-              return 'Please Select Your Concern';
-            }
-            return null;
-          },
-          onSaved: (newValue) {
-            if (newValue == null) return;
-            setState(() {
-              _patientAntibioticsSelect = newValue;
-            });
-          },
-          onChanged: (updateSelection) {
-            _patientAntibioticsSelect = updateSelection!;
-          },
-        ),
-      ],
+                )
+                .toList(),
+            validator: (selectedPatientAntibiotics) {
+              if (selectedPatientAntibiotics == null) {
+                return 'Please Select Your Concern';
+              }
+              return null;
+            },
+            onSaved: (newValue) {
+              if (newValue == null) return;
+              setState(() {
+                _patientAntibioticsSelect = newValue;
+              });
+            },
+            onChanged: (updateSelection) {
+              _patientAntibioticsSelect = updateSelection!;
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -811,7 +873,7 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
         SizedBox(height: 24),
         Text(
           'Did you receive the flu vaccine this year ?',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
         ),
         SizedBox(height: 20),
         RadioGroup<PatientFlueOptions>(
@@ -826,7 +888,10 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               RadioListTile<PatientFlueOptions>(
-                title: Text('Yes'),
+                title: Text(
+                  'Yes',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
+                ),
                 value: PatientFlueOptions.Yes,
                 activeColor: Colors.blueAccent.shade200,
                 radioSide: BorderSide(
@@ -841,7 +906,10 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
                 groupValue: _patientVacinated,
               ),
               RadioListTile<PatientFlueOptions>(
-                title: Text('No'),
+                title: Text(
+                  'No',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
+                ),
                 value: PatientFlueOptions.No,
                 activeColor: Colors.blueAccent.shade200,
                 selected: false,
@@ -870,7 +938,7 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
       children: [
         Text(
           'Have you used homeopathy before ?',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
         ),
         SizedBox(height: 20),
         RadioGroup<PatientFlueOptions>(
@@ -881,11 +949,14 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
             });
           },
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               RadioListTile<PatientFlueOptions>(
-                title: Text('Yes'),
+                dense: true,
+                visualDensity: VisualDensity(horizontal: -4),
+                title: Text(
+                  'Yes',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
+                ),
                 value: PatientFlueOptions.Yes,
                 activeColor: Colors.blueAccent.shade200,
                 radioSide: BorderSide(
@@ -929,14 +1000,18 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Other Complementary Therapies you have used before ?',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            'Have you used any Complementary Therapies before ?',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
           ),
           SizedBox(height: 12),
           _currentSelectedTherapies.isEmpty
               ? Text(
-                  'No therapies selected yet.',
-                  style: TextStyle(color: Colors.black),
+                  'Nothing Selected',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.black45,
+                  ),
                 )
               : Wrap(
                   spacing: 8.0,
@@ -968,19 +1043,15 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
           MaterialButton(
             onPressed: _selectFromTherapies,
             minWidth: 200,
-            height: 40,
-            clipBehavior: Clip.hardEdge,
+            height: 45,
             color: Colors.blueAccent.shade400,
             textColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(30),
               side: BorderSide(color: Colors.white),
             ),
 
-            child: Text(
-              'Select Therapies',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            child: Text('Select', style: TextStyle(fontSize: 16)),
           ),
           SizedBox(height: 30),
         ],
@@ -1024,13 +1095,13 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
 
     try {
       await doctorRef.collection('patients').doc(appointmentID).set({
-        'personal': {
+        'patient_personal': {
           'fullname': _patientName,
           'age': _patientAge,
           'gender': _patientGenderSelect,
           'appointment_date': _selectedAppointmentDate.toString(),
         },
-        'health': {
+        'patient_health_info': {
           'fullname': _patientName,
           'area_of_concern': _patientConcern,
           'key_symptoms': _patientSymptomtext,
@@ -1039,30 +1110,30 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
           'last_anitbioticstaken': _patientAntibioticsSelect,
           'timestamp': FieldValue.serverTimestamp(),
         },
-        'lifestyle': {
+        'patient_lifestyle_info': {
           'fullname': _patientName,
           'dietType': _patientDietType,
           'alcoholInTake': _patientAlcholoConsumption,
           'exerciseLevel': _patientExerciseLevel,
           'homeopathyTreatmentTaken': _patientFluOption.name,
+          'patient_selected_therapies': _currentSelectedTherapies,
           'timestamp': FieldValue.serverTimestamp(),
         },
-        'selected_therapies': _currentSelectedTherapies,
-        'appointment_id': appointmentID,
-        'appointment_status': 'Pending',
+        'patient_appointment_id': appointmentID,
+        'patient_appointment_status': '_patientAppointmentStatus.name',
         'related_to_patient': _relatedToPatient,
         'appointment_created_by': _appointmentCreatedBy,
         'created_at': FieldValue.serverTimestamp(),
       });
 
       await patientDocRef.collection('appointments').doc(appointmentID).set({
-        'personal': {
+        'patient_personal': {
           'fullname': _patientName,
           'age': _patientAge,
           'gender': _patientGenderSelect,
           'appointment_date': _selectedAppointmentDate.toString(),
         },
-        'health': {
+        'patient_health_info': {
           'fullname': _patientName,
           'area_of_concern': _patientConcern,
           'key_symptoms': _patientSymptomtext,
@@ -1071,47 +1142,21 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
           'last_anitbioticstaken': _patientAntibioticsSelect,
           'timestamp': FieldValue.serverTimestamp(),
         },
-        'lifestyle': {
+        'patient_lifestyle_info': {
           'fullname': _patientName,
           'dietType': _patientDietType,
           'alcoholInTake': _patientAlcholoConsumption,
           'exerciseLevel': _patientExerciseLevel,
           'homeopathyTreatmentTaken': _patientFluOption.name,
+          'patient_selected_therapies': _currentSelectedTherapies,
           'timestamp': FieldValue.serverTimestamp(),
         },
-        'selected_therapies': _currentSelectedTherapies,
-        'appointment_id': appointmentID,
-        'appointment_status': 'Pending',
+        'patient_appointment_id': appointmentID,
+        'patient_appointment_status': _patientAppointmentStatus,
         'related_to_patient': _relatedToPatient,
         'appointment_created_by': _appointmentCreatedBy,
         'created_at': FieldValue.serverTimestamp(),
       });
-
-      // await patientDocRef.collection('patient_personal').add({
-      //   'fullname': _patientName,
-      //   'age': _patientAge,
-      //   'gender': _patientGenderSelect,
-      //   'appointment_date': _selectedAppointmentDate.toString(),
-      // });
-
-      // await patientDocRef.collection('patient_health').add({
-      //   'fullname': _patientName,
-      //   'area_of_concern': _patientConcern,
-      //   'key_symptoms': _patientSymptomtext,
-      //   'flu_vaccine_taken': _patientVacinated.name,
-      //   'current_medications': _patientCurrentMeds,
-      //   'last_anitbioticstaken': _patientAntibioticsSelect,
-      //   'timestamp': FieldValue.serverTimestamp(),
-      // });
-
-      // await patientDocRef.collection('patient_lifeStyle').add({
-      //   'fullname': _patientName,
-      //   'dietType': _patientDietType,
-      //   'alcoholInTake': _patientAlcholoConsumption,
-      //   'exerciseLevel': _patientExerciseLevel,
-      //   'homeopathyTreatmentTaken': _patientFluOption.name,
-      //   'timestamp': FieldValue.serverTimestamp(),
-      // });
     } on FirebaseAuthException catch (errorException) {
       if (errorException.code == 'email alreayd in use') {
         ScaffoldMessenger.of(context).clearSnackBars();
@@ -1138,26 +1183,26 @@ class _CreateAppointmentState extends State<CreateAppointmentScreen> {
     ).pushNamedAndRemoveUntil('home', (Route<dynamic> route) => false);
   }
 
-  Widget submitButton() {
+  Widget _submitButton() {
     return GestureDetector(
       onTap: _postPatientForm,
       child: Center(
         child: Container(
           clipBehavior: Clip.hardEdge,
           width: _deviceWidth!,
-          height: _deviceHeight! * 0.06,
+          height: 48,
           padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: Colors.white,
             border: Border.all(color: Colors.blueAccent.shade200, width: 2.0),
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(30),
           ),
           child: Text(
             'Submit',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.blueAccent.shade200,
-              fontSize: 22,
+              fontSize: 16,
               fontWeight: FontWeight.w300,
             ),
           ),

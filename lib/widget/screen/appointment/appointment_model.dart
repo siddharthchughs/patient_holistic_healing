@@ -1,8 +1,20 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 final dateFormatter = DateFormat.yMd();
+final Map<String, Color> isStatusPending = {
+  'Pending': Colors.redAccent.shade200,
+  'Confirm': Colors.lightGreen.shade400,
+  'Cancelled': Colors.deepOrange,
+};
+
+enum PopMenuItems { Setting, Profile }
 
 enum PatientFlueOptions { Select, Yes, No }
+
+enum AppointmentStatus { Pending, Confirm }
+
+enum PatientRoute { symptoms, medication, listOfTherapies }
 
 final List<String> genderType = [
   'Male',
@@ -96,35 +108,15 @@ const patientActivities = {
   PatientCheck.lifestyle: 'patient_lifestyle_info',
 };
 
-// enum AreaOfConcern {
-//   selectprimaryconcern,
-//   digestive,
-//   anxiety_stress,
-//   sleep,
-//   pain,
-//   skin,
-//   respiratory,
-//   womens_health,
-//   mens_health,
-//   allergies,
-//   fatigue,
-//   immune,
-//   emotional,
-//   other,
-// }
+class Therapies {
+  Therapies({required this.title});
+  final String title;
 
-// const area_of_Concern = {
-//   AreaOfConcern.selectprimaryconcern: 'Select Primary Concern',
-//   AreaOfConcern.digestive: 'Digestive Issues',
-//   AreaOfConcern.anxiety_stress: 'Anxiety & Stress',
-//   AreaOfConcern.sleep: 'Sleep Problemms',
-//   AreaOfConcern.pain: 'Pain (chronic or acute)',
-//   AreaOfConcern.skin: 'Skin Conditions',
-//   AreaOfConcern.respiratory: 'Respiratory Issues',
-//   AreaOfConcern.womens_health: 'Womens Health',
-//   AreaOfConcern.mens_health: 'Mesns Health',
-//   AreaOfConcern.allergies: 'Allergies',
-//   AreaOfConcern.fatigue: 'Fatigue & Energy',
-//   AreaOfConcern.emotional: 'Emotional Wellbeing',
-//   AreaOfConcern.other: 'Other (please specify below)',
-// };
+  Map<String, dynamic> toMap() {
+    return {'title': title};
+  }
+
+  factory Therapies.fromMap(Map<String, dynamic> map) {
+    return Therapies(title: map['title']);
+  }
+}
